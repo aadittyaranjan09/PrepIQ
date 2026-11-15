@@ -2,63 +2,73 @@ const passport = require("passport")
 const GoogleStrategy = require("passport-google-oauth20").Strategy
 const userModel = require("../models/user.model")
 
-passport.use(
-    new GoogleStrategy(
-        {
-            clientID: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: process.env.NODE_ENV === "production"
-                ? "https://prepiq-lngh.onrender.com/api/auth/google/callback"
-                : "http://localhost:3000/api/auth/google/callback"
-        },
-        async (accessToken, refreshToken, profile, done) => {
-            try {
-                const email = profile.emails && profile.emails[0]?.value
-                const avatar = profile.photos && profile.photos[0]?.value
+const isGoogleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
-                if (!email) {
-                    return done(new Error("No email found in Google profile"), null)
-                }
+if (isGoogleConfigured) {
+    const callbackURL = process.env.GOOGLE_CALLBACK_URL ||
+        (process.env.CLIENT_URL ? `${process.env.CLIENT_URL.replace(/\/$/, '')}/api/auth/google/callback` : "/api/auth/google/callback")
 
-                // Check if user already exists by googleId or email
-                let user = await userModel.findOne({
-                    $or: [{ googleId: profile.id }, { email }]
-                })
+    passport.use(
+        new GoogleStrategy(
+            {
+                clientID: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                callbackURL
+            },
+            async (accessToken, refreshToken, profile, done) => {
+                try {
+                    const email = profile.emails && profile.emails[0]?.value
+                    const avatar = profile.photos && profile.photos[0]?.value
 
-                if (user) {
-                    // Update user if googleId or avatar was missing
-                    if (!user.googleId) user.googleId = profile.id
-                    if (!user.avatar && avatar) user.avatar = avatar
-                    await user.save()
+                    if (!email) {
+                        return done(new Error("No email found in Google profile"), null)
+                    }
+
+                    // Check if user already exists by googleId or email
+                    let user = await userModel.findOne({
+                        $or: [{ googleId: profile.id }, { email }]
+                    })
+
+                    if (user) {
+                        // Update user if googleId or avatar was missing
+                        if (!user.googleId) user.googleId = profile.id
+                        if (!user.avatar && avatar) user.avatar = avatar
+                        await user.save()
+                        return done(null, user)
+                    }
+
+                    // Otherwise create new user
+                    let baseUsername = profile.displayName 
+                        ? profile.displayName.replace(/\s+/g, '').toLowerCase() 
+                        : email.split('@')[0]
+
+                    // Ensure username uniqueness
+                    let username = baseUsername
+                    let counter = 1
+                    while (await userModel.findOne({ username })) {
+                        username = `${baseUsername}${counter}`
+                        counter++
+                    }
+
+                    user = await userModel.create({
+                        username,
+                        email,
+                        googleId: profile.id,
+                        avatar
+                    })
+
                     return done(null, user)
+                } catch (err) {
+                    return done(err, null)
                 }
-
-                // Otherwise create new user
-                let baseUsername = profile.displayName 
-                    ? profile.displayName.replace(/\s+/g, '').toLowerCase() 
-                    : email.split('@')[0]
-
-                // Ensure username uniqueness
-                let username = baseUsername
-                let counter = 1
-                while (await userModel.findOne({ username })) {
-                    username = `${baseUsername}${counter}`
-                    counter++
-                }
-
-                user = await userModel.create({
-                    username,
-                    email,
-                    googleId: profile.id,
-                    avatar
-                })
-
-                return done(null, user)
-            } catch (err) {
-                return done(err, null)
             }
-        }
+        )
     )
-)
+    console.log("✅ Passport Google OAuth strategy registered with callback:", callbackURL)
+} else {
+    console.warn("⚠️  Google OAuth not configured (missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET). Google login endpoint will return 503 until set.")
+}
+
+passport.isGoogleConfigured = isGoogleConfigured
 
 module.exports = passport

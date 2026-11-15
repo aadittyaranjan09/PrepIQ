@@ -1,14 +1,25 @@
 {
-  "name": "web-d_proj",
+  "name": "prepiq",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "PrepIQ — AI-Powered Interview Intelligence Platform (Single-Service Architecture)",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build:frontend": "npm --prefix Frontend install && npm --prefix Frontend run build",
+    "build": "npm run build:frontend",
+    "postinstall": "npm --prefix Frontend install",
+    "dev": "node server.js",
+    "test": "node test/suite.js"
   },
-  "keywords": [],
+  "keywords": [
+    "interview-preparation",
+    "ai",
+    "groq",
+    "react",
+    "express",
+    "render",
+    "mongodb-atlas"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -27,6 +38,6 @@
     "pdf-parse": "^1.1.1",
     "puppeteer": "^25.3.0",
     "sass": "^1.101.0",
-    "zod": "^4.4.3"
+    "zod": "^3.25.76"
   }
 }

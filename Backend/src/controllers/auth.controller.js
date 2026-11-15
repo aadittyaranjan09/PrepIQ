@@ -7,9 +7,9 @@ const IS_PROD = process.env.NODE_ENV === "production"
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    sameSite: IS_PROD ? "none" : "lax",  // "none" required for cross-origin (Vercel -> Render)
-    secure: IS_PROD,                       // must be true when sameSite="none"
-    maxAge: 24 * 60 * 60 * 1000           // 1 day
+    sameSite: "lax",  // "lax" is standard and secure for same-origin single-service architecture
+    secure: IS_PROD,   // true in production (HTTPS on Render)
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
 }
 
 /**
@@ -177,8 +177,9 @@ async function getMeController(req, res) {
 async function googleAuthCallbackController(req, res) {
     try {
         const user = req.user
+        const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : ""
+
         if (!user) {
-            const clientUrl = process.env.CLIENT_URL || "http://localhost:5173"
             return res.redirect(`${clientUrl}/login?error=auth_failed`)
         }
 
@@ -190,12 +191,11 @@ async function googleAuthCallbackController(req, res) {
 
         res.cookie("token", token, COOKIE_OPTIONS)
 
-        // Redirect to frontend app
-        const clientUrl = process.env.CLIENT_URL || (process.env.NODE_ENV === "production" ? "https://ai-powered-resume-analysis-mock-int.vercel.app" : "http://localhost:5173")
+        // Redirect to frontend app home
         res.redirect(`${clientUrl}/`)
     } catch (err) {
         console.error("Google auth callback error:", err)
-        const clientUrl = process.env.CLIENT_URL || "http://localhost:5173"
+        const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : ""
         res.redirect(`${clientUrl}/login?error=server_error`)
     }
 }

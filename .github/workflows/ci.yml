@@ -1,9 +1,4 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# CI — Continuous Integration
-# Runs on every push and pull request to main/dev branch
-# Checks: Frontend build + lint, Backend install + syntax check
-# ─────────────────────────────────────────────────────────────────────────────
-name: CI — Build & Lint
+name: CI — Build & Test
 
 on:
   push:
@@ -12,14 +7,9 @@ on:
     branches: [main, dev, develop]
 
 jobs:
-  # ── Frontend ────────────────────────────────────────────────────────────────
-  frontend:
-    name: Frontend — Install, Lint & Build
+  build-and-test:
+    name: Build & Test Single-Service PrepIQ
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: Frontend
 
     steps:
       - name: Checkout repository
@@ -30,53 +20,21 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: Frontend/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies (Backend + Frontend)
+        run: |
+          npm ci || npm install
+          npm --prefix Frontend ci || npm --prefix Frontend install
 
-      - name: Run ESLint
-        run: npm run lint
-        continue-on-error: true   # lint warnings won't block build
-
-      - name: Build production bundle
+      - name: Build frontend production bundle
         run: npm run build
-        env:
-          # Inject any public env vars needed at build time
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: Frontend/dist
-          retention-days: 7
+      - name: Syntax check server entry point and backend files
+        run: |
+          node --check server.js
+          node --check Backend/server.js
+          node --check Backend/src/app.js
+          find Backend/src -name "*.js" -exec node --check {} \;
 
-  # ── Backend ─────────────────────────────────────────────────────────────────
-  backend:
-    name: Backend — Install & Syntax Check
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: Backend
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: Backend/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Syntax check — server entry point
-        run: node --check server.js
-
-      - name: Syntax check — all source files
-        run: find src -name "*.js" -exec node --check {} \;
+      - name: Run test suite
+        run: npm test

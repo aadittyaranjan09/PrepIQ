@@ -1,10 +1,21 @@
 const { Router } = require('express')
 const authController = require("../controllers/auth.controller")
 const authMiddleware = require("../middlewares/auth.middleware")
-
 const passport = require("../config/passport")
 
 const authRouter = Router()
+
+/**
+ * Guard middleware to gracefully handle Google OAuth when credentials are not configured
+ */
+function googleAuthGuard(req, res, next) {
+    if (!passport.isGoogleConfigured) {
+        return res.status(503).json({
+            message: "Google OAuth is not configured on this server. Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET."
+        })
+    }
+    next()
+}
 
 /**
  * @route GET /api/auth/google
@@ -13,6 +24,7 @@ const authRouter = Router()
  */
 authRouter.get(
     "/google",
+    googleAuthGuard,
     passport.authenticate("google", { scope: ["profile", "email"], session: false })
 )
 
@@ -23,6 +35,7 @@ authRouter.get(
  */
 authRouter.get(
     "/google/callback",
+    googleAuthGuard,
     passport.authenticate("google", { session: false, failureRedirect: "/login?error=google_failed" }),
     authController.googleAuthCallbackController
 )

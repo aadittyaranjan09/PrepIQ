@@ -1,17 +1,40 @@
 const Groq = require("groq-sdk")
 const { toFile } = require("groq-sdk")
-const puppeteer = require("puppeteer")
 const { z } = require("zod")
+
+// Resilient Puppeteer loader supporting both CommonJS and modern ESM exports
+let _puppeteer = null
+async function getPuppeteer() {
+    if (!_puppeteer) {
+        try {
+            const mod = await import("puppeteer")
+            _puppeteer = mod.default || mod
+        } catch (err) {
+            try {
+                _puppeteer = require("puppeteer")
+            } catch (innerErr) {
+                console.error("Failed to load Puppeteer:", innerErr)
+                throw new Error("Puppeteer is not available on this system.")
+            }
+        }
+    }
+    return _puppeteer
+}
 
 function getGroqClient() {
     const apiKey = process.env.GROQ_API_KEY
     if (!apiKey) {
-        throw new Error("GROQ_API_KEY is missing. Please configure GROQ_API_KEY in your .env file.")
+        throw new Error("GROQ_API_KEY is missing. Please configure GROQ_API_KEY in your environment.")
     }
     return new Groq({ apiKey })
 }
 
-const MODELS = ["openai/gpt-oss-120b", "qwen/qwen3.6-27b", "groq/compound", "llama-3.3-70b-versatile"]
+// Configurable models list with production defaults
+const configuredModel = process.env.GROQ_MODEL
+const defaultModels = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768", "qwen/qwen3.6-27b"]
+const MODELS = configuredModel
+    ? [configuredModel, ...defaultModels.filter(m => m !== configuredModel)]
+    : defaultModels
 
 async function createGroqCompletion(params) {
     const groq = getGroqClient()
@@ -22,9 +45,9 @@ async function createGroqCompletion(params) {
             return await groq.chat.completions.create({
                 ...params,
                 model
-            })
+            }, { timeout: parseInt(process.env.GROQ_TIMEOUT_MS, 10) || 45000 })
         } catch (err) {
-            console.warn(`Groq model ${model} failed: ${err.message}. Trying next model...`)
+            console.warn(`Groq model ${model} failed: ${err.message}. Trying fallback model...`)
             lastErr = err
             const isModelError = err?.error?.code === 'model_not_found' || err?.error?.code === 'model_decommissioned' || err?.status === 404
             if (!isModelError) {
@@ -252,47 +275,66 @@ Generate at least 5 technical questions, 4 behavioral questions, identify key sk
 async function generatePdfFromHtml(htmlContent) {
     console.log("Launching Puppeteer browser...")
 
+    const puppeteer = await getPuppeteer()
     const isWindows = process.platform === "win32"
 
-    const browser = await puppeteer.launch({
-        headless: "new",
-        args: [
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-            "--disable-dev-shm-usage",
-            "--disable-gpu",
-            "--no-first-run",
-            "--no-zygote",
-            // NOTE: --single-process is omitted — it crashes on Windows
-        ],
+    const launchArgs = [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-zygote",
+    ]
+
+    // On Linux containers (Render), single-process helps stay within memory limits
+    if (!isWindows) {
+        launchArgs.push("--single-process")
+    }
+
+    const launchOptions = {
+        headless: true,
+        args: launchArgs,
         protocolTimeout: 60000,
         timeout: 30000,
-    })
+    }
 
-    console.log("Browser launched. Opening page...")
+    // Support custom chromium executable path if configured
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH
+    }
 
+    let browser = null
     try {
+        browser = await puppeteer.launch(launchOptions)
+        console.log("Browser launched. Opening page...")
+
         const page = await browser.newPage()
-        await page.setContent(htmlContent, { waitUntil: "networkidle0", timeout: 30000 })
+        try {
+            await page.setContent(htmlContent, { waitUntil: "networkidle0", timeout: 30000 })
+            console.log("Page content set. Generating PDF...")
 
-        console.log("Page content set. Generating PDF...")
+            const pdfBuffer = await page.pdf({
+                format: "A4",
+                printBackground: true,
+                margin: {
+                    top: "20mm",
+                    bottom: "20mm",
+                    left: "15mm",
+                    right: "15mm"
+                }
+            })
 
-        const pdfBuffer = await page.pdf({
-            format: "A4",
-            printBackground: true,
-            margin: {
-                top: "20mm",
-                bottom: "20mm",
-                left: "15mm",
-                right: "15mm"
-            }
-        })
-
-        console.log(`PDF generated successfully. Size: ${pdfBuffer.length} bytes`)
-        return pdfBuffer
+            console.log(`PDF generated successfully. Size: ${pdfBuffer.length} bytes`)
+            return pdfBuffer
+        } finally {
+            await page.close().catch(() => {})
+        }
     } finally {
-        await browser.close()
-        console.log("Browser closed.")
+        if (browser) {
+            await browser.close().catch(() => {})
+            console.log("Browser closed.")
+        }
     }
 }
 
@@ -657,7 +699,7 @@ async function transcribeAudio(audioBuffer, mimeType = "audio/webm") {
             model: "whisper-large-v3-turbo",
             response_format: "json",
             language: "en",
-        })
+        }, { timeout: parseInt(process.env.GROQ_WHISPER_TIMEOUT_MS, 10) || 60000 })
 
         return transcription.text || ""
     } catch (err) {
