@@ -43,7 +43,7 @@ jobs:
         run: npm run build
         env:
           # Inject any public env vars needed at build time
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
