@@ -1,0 +1,694 @@
+// ── Mock Interview Panel Styles ─────────────────────────────────────────────
+$cyan:    #00D4FF;
+$indigo:  #6366F1;
+$violet:  #8B5CF6;
+$emerald: #10B981;
+$amber:   #F59E0B;
+$red:     #EF4444;
+$bg:      #07070F;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PANEL SHELL
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    animation: mockFadeIn 0.3s ease;
+}
+
+@keyframes mockFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HEADER
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    &-left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+
+        h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, $violet, $cyan);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+    }
+}
+
+.mock-panel__sub {
+    font-size: 0.76rem;
+    color: rgba(255,255,255,0.32);
+    font-weight: 500;
+}
+
+.mock-panel__progress-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35rem;
+    min-width: 140px;
+}
+
+.mock-panel__q-count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.04em;
+}
+
+.mock-panel__progress-bar {
+    width: 140px;
+    height: 5px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.mock-panel__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, $violet, $cyan);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 8px rgba($violet, 0.4);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BODY — two columns
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-panel__body {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.25rem;
+    align-items: start;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.mock-panel__left {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mock-panel__right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    position: sticky;
+    top: 0;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// QUESTION CARD
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-q-card {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 18px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, $violet, $cyan, $emerald);
+        border-radius: 18px 18px 0 0;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    &__type {
+        font-size: 0.62rem;
+        font-weight: 700;
+        padding: 0.2rem 0.65rem;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+
+        &--technical  { background: rgba($cyan, 0.1);   color: $cyan;   border: 1px solid rgba($cyan, 0.2); }
+        &--behavioral { background: rgba($violet, 0.1); color: $violet; border: 1px solid rgba($violet, 0.2); }
+    }
+
+    &__num {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.3);
+        font-weight: 600;
+    }
+
+    &__text {
+        font-size: 1.05rem;
+        font-weight: 600;
+        line-height: 1.6;
+        color: #F0F4FF;
+        margin: 0;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ANSWER AREA
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-answer-area {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &__label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+}
+
+.mock-mic-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    background: rgba($emerald, 0.08);
+    border: 1px solid rgba($emerald, 0.2);
+    border-radius: 8px;
+    color: $emerald;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: none;
+
+    &:hover { background: rgba($emerald, 0.14); }
+
+    &--active {
+        background: rgba($red, 0.08);
+        border-color: rgba($red, 0.25);
+        color: $red;
+        animation: micPulse 1.2s ease-in-out infinite;
+
+        &:hover { background: rgba($red, 0.14); }
+    }
+}
+
+@keyframes micPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba($red, 0); }
+    50%       { box-shadow: 0 0 0 4px rgba($red, 0.15); }
+}
+
+.mock-textarea {
+    width: 100%;
+    min-height: 140px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.6;
+    resize: vertical;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+
+    &::placeholder { color: rgba(255,255,255,0.2); }
+
+    &:focus {
+        outline: none;
+        border-color: rgba($violet, 0.35);
+        box-shadow: 0 0 0 3px rgba($violet, 0.08);
+    }
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.mock-listening-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.75rem;
+    color: $red;
+    font-weight: 600;
+}
+
+.mock-listening-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: $red;
+    box-shadow: 0 0 8px $red;
+    animation: micPulse 0.9s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.mock-answer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.mock-word-count {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.22);
+    font-weight: 600;
+}
+
+.mock-action-btns {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+}
+
+.mock-btn-skip {
+    padding: 0.55rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.65); }
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.mock-btn-submit {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.4rem;
+    background: linear-gradient(135deg, $violet, $indigo);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 18px rgba($violet, 0.28);
+
+    &:hover:not(:disabled) { box-shadow: 0 6px 28px rgba($violet, 0.4); transform: translateY(-1px); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+}
+
+.mock-spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: mockSpin 0.65s linear infinite;
+    display: inline-block;
+}
+
+@keyframes mockSpin { to { transform: rotate(360deg); } }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVALUATION CARD
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-eval-card {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 18px;
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    animation: mockFadeIn 0.35s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        border-radius: 18px 18px 0 0;
+    }
+
+    &--excellent::before { background: linear-gradient(90deg, $emerald, $cyan); }
+    &--good::before      { background: linear-gradient(90deg, $cyan, $indigo); }
+    &--average::before   { background: linear-gradient(90deg, $amber, $cyan); }
+    &--needs_work::before{ background: linear-gradient(90deg, $red, $violet); }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+
+        h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.6);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+    }
+}
+
+.mock-eval-score {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    &__num {
+        font-size: 2rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    &__denom {
+        font-size: 0.9rem;
+        color: rgba(255,255,255,0.25);
+        font-weight: 600;
+    }
+
+    &__verdict {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.22rem 0.65rem;
+        border-radius: 999px;
+        text-transform: capitalize;
+    }
+}
+
+.mock-eval-feedback {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.65;
+    margin: 0;
+}
+
+.mock-eval-improvements {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &__label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.25);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.1rem;
+    }
+}
+
+.mock-eval-imp-item {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+    padding-left: 0.5rem;
+    border-left: 2px solid rgba($violet, 0.35);
+    line-height: 1.4;
+}
+
+.mock-eval-followup {
+    background: rgba($cyan, 0.04);
+    border: 1px solid rgba($cyan, 0.12);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+
+    &__label {
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        color: $cyan;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.45rem;
+        opacity: 0.7;
+    }
+
+    p {
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.5);
+        margin: 0;
+        line-height: 1.5;
+        font-style: italic;
+    }
+}
+
+.mock-btn-next {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, $violet, $indigo);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba($violet, 0.3);
+
+    &:hover { box-shadow: 0 6px 32px rgba($violet, 0.45); transform: translateY(-1px); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RIGHT PANEL — Hint + Progress
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-hint-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+
+    &--answer {
+        border-color: rgba($emerald, 0.15);
+        background: rgba($emerald, 0.03);
+        animation: mockFadeIn 0.35s ease;
+    }
+
+    &__label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.28);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    &__text {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.5);
+        line-height: 1.6;
+        margin: 0;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SESSION PROGRESS SIDEBAR
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-sessions-summary {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+
+    &__label {
+        font-size: 0.62rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.22);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.2rem;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    &__num {
+        font-size: 0.65rem;
+        color: rgba(255,255,255,0.3);
+        font-weight: 700;
+        width: 22px;
+        flex-shrink: 0;
+    }
+
+    &__bar {
+        flex: 1;
+        height: 5px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    &__fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    &__score {
+        font-size: 0.65rem;
+        font-weight: 700;
+        width: 32px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPLETION SCREEN
+// ─────────────────────────────────────────────────────────────────────────────
+.mock-complete {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem;
+    gap: 0.75rem;
+    text-align: center;
+    animation: mockFadeIn 0.4s ease;
+
+    h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, $violet, $cyan);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+    }
+
+    > p {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.35);
+        margin: 0;
+    }
+
+    &__icon {
+        width: 64px; height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba($violet,0.2), rgba($emerald,0.2));
+        border: 2px solid rgba($emerald,0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: $emerald;
+        box-shadow: 0 0 30px rgba($emerald, 0.2);
+    }
+
+    &__score {
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+        margin: 0.5rem 0;
+
+        span { font-size: 3.5rem; font-weight: 900; line-height: 1; }
+        small { font-size: 1rem; color: rgba(255,255,255,0.3); }
+    }
+
+    &__breakdown {
+        width: 100%;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 1rem 0;
+        text-align: left;
+    }
+
+    &__row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 10px;
+        padding: 0.65rem 1rem;
+    }
+
+    &__vtag {
+        font-size: 0.62rem;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        text-transform: capitalize;
+        flex-shrink: 0;
+        white-space: nowrap;
+
+        &--excellent { background: rgba($emerald,0.12); color: $emerald; border: 1px solid rgba($emerald,0.2); }
+        &--good      { background: rgba($cyan,0.12);    color: $cyan;    border: 1px solid rgba($cyan,0.2); }
+        &--average   { background: rgba($amber,0.12);   color: $amber;   border: 1px solid rgba($amber,0.2); }
+        &--needs_work{ background: rgba($red,0.12);     color: $red;     border: 1px solid rgba($red,0.2); }
+    }
+
+    &__qtext {
+        flex: 1;
+        font-size: 0.78rem;
+        color: rgba(255,255,255,0.5);
+        line-height: 1.4;
+    }
+
+    &__score-sm {
+        font-size: 0.78rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    &__actions {
+        margin-top: 0.5rem;
+    }
+}
+
+.mock-btn-primary {
+    padding: 0.8rem 2rem;
+    background: linear-gradient(135deg, $violet, $indigo);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba($violet, 0.3);
+
+    &:hover { box-shadow: 0 6px 30px rgba($violet, 0.45); transform: translateY(-1px); }
+}
