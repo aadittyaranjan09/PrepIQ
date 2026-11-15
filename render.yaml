@@ -13,20 +13,27 @@ services:
       - key: PORT
         value: 10000
       - key: MONGO_URI
+        value: mongodb+srv://adittyaranjan09_db_user:qUKE@wlbS4u4AC58@cluster0.1vpakmj.mongodb.net/
         sync: false
       - key: JWT_SECRET
+        value: mongodb+srv://adittyaranjan09_db_user:qUKE@wlbS4u4AC58@cluster0.1vpakmj.mongodb.net/
         sync: false
       - key: GROQ_API_KEY
+        value: mongodb+srv://adittyaranjan09_db_user:qUKE@wlbS4u4AC58@cluster0.1vpakmj.mongodb.net/
         sync: false
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
       - key: CLIENT_URL
+        value: mongodb+srv://adittyaranjan09_db_user:qUKE@wlbS4u4AC58@cluster0.1vpakmj.mongodb.net/
         sync: false
       - key: GOOGLE_CLIENT_ID
+        value: mongodb+srv://adittyaranjan09_db_user:qUKE@wlbS4u4AC58@cluster0.1vpakmj.mongodb.net/
         sync: false
       - key: GOOGLE_CLIENT_SECRET
+        value: mongodb+srv://adittyaranjan09_db_user:qUKE@wlbS4u4AC58@cluster0.1vpakmj.mongodb.net/
         sync: false
       - key: GOOGLE_CALLBACK_URL
+        value: mongodb+srv://adittyaranjan09_db_user:qUKE@wlbS4u4AC58@cluster0.1vpakmj.mongodb.net/
         sync: false
       - key: PUPPETEER_CACHE_DIR
         value: /opt/render/project/src/.cache/puppeteer
